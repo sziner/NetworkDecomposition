@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <unordered_set>
+#include <functional>
 #include "robin_hood.h"
 using namespace std;
 enum state_t : uint8_t { ACTIVE, STALLING, FINISHED, KILLED };
@@ -82,7 +83,6 @@ class Graph
 			vector<int> killed;
 			vector<int> stalled;
 		} mail, mailbox;
-		
 
 		void make_proposals();
 		void process_proposals();

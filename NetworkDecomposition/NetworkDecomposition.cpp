@@ -110,7 +110,7 @@ int Graph::networkdecomposition()
 								}
 								u.proposals.clear();
 
-								if (u.id == u.new_parent.id && u.level < B)//u has not proposed
+								if (u.id == u.new_parent.id && u.level < B)//u has not proposed and isn't FINISHED
 								{
 									++u.label;
 									stalled_nodes.push_back(idx);//become STALLED. need to increase u.level later

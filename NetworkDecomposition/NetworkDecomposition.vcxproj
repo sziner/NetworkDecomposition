@@ -143,19 +143,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ND_WithMsgVectoring.cpp" />
     <ClCompile Include="NetworkDecomposition.cpp" />
-    <ClCompile Include="NDwithTreeMap.cpp" />
-    <ClCompile Include="Structs_vectoring.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="robin_hood.h" />
     <ClInclude Include="structs.hpp" />
-    <ClInclude Include="Structs_vectoring.hpp" />
     <ClInclude Include="utils.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

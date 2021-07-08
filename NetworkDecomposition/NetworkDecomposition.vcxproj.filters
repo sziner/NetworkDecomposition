@@ -18,15 +18,6 @@
     <ClCompile Include="NetworkDecomposition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NDwithTreeMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ND_WithMsgVectoring.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Structs_vectoring.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="structs.hpp">
@@ -38,11 +29,5 @@
     <ClInclude Include="robin_hood.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Structs_vectoring.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,22 @@
+{
+	"files.associations": {
+		"cmath": "cpp",
+		"functional": "cpp",
+		"list": "cpp",
+		"memory": "cpp",
+		"ostream": "cpp",
+		"system_error": "cpp",
+		"tuple": "cpp",
+		"type_traits": "cpp",
+		"unordered_map": "cpp",
+		"unordered_set": "cpp",
+		"utility": "cpp",
+		"vector": "cpp",
+		"xhash": "cpp",
+		"xlocnum": "cpp",
+		"xmemory": "cpp",
+		"xstring": "cpp",
+		"xtr1common": "cpp",
+		"xutility": "cpp"
+	}
+}
