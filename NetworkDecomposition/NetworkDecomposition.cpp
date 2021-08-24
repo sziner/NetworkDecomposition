@@ -3,20 +3,26 @@
 #include <algorithm>
 #include <iterator>
 #include <numeric>
-using namespace std;
 
+namespace sz_nd
+{ 
 
 int Graph::networkdecomposition()
 {
+	using std::max;
+
 	const unsigned N = nodes.size();
 	const unsigned LOGN = log2(N);
 	const int B = LOGN;
+	int max_height = 0;
+	int new_max_height = 0;
 	//int num_unfinished = N;//to end early
-	vector<int> accepted_nodes;//to send update to neighbors at the end of a step
-	vector<int> stalled_nodes;//to send update to neighbors at the end of a step
-	vector<int> killed_nodes;
-	vector<int> active_nodes;
-	vector<int> living_nodes;
+	std::vector<int> accepted_nodes;//to send update to neighbors at the end of a step
+	std::vector<int> stalled_nodes;//to send update to neighbors at the end of a step
+	std::vector<int> finished_nodes;
+	std::vector<int> killed_nodes;
+	std::vector<int> active_nodes;
+	std::vector<int> living_nodes;
 	living_nodes.reserve(N);
 	for (int i = 0; i < N; ++i)
 		living_nodes.push_back(i);
@@ -29,10 +35,10 @@ int Graph::networkdecomposition()
 				int round = 0;//first round, PROPOSE messages
 				for (int& idx : living_nodes)
 				{
-					auto& u = nodes[idx];
+					Node& u = nodes[idx];
 
-					/*check for neighbors NEW*/
-					auto& v = *std::min_element(u.active_neighbors.begin(), u.active_neighbors.end());
+					//check for neighbors
+					Neighbor& v = *std::min_element(u.neighbors[ACTIVE].begin(), u.neighbors[ACTIVE].end());
 					if (v < u)
 					{
 						u.new_parent.id = v.id;
@@ -40,202 +46,208 @@ int Graph::networkdecomposition()
 					}
 				}
 				///////////////////////////////////////////////////////////////////////
-				round = 1;//second round. recieve proposals. nodes begin upcasting
-				for (int& idx : leaf_nodes)
+				round = 1;//second round. recieve proposals. leaf nodes begin upcasting.
+				for (int& idx : living_nodes)
 				{//only PROPOSE messages
 					Node& u = nodes[idx];
-					Tree& t = u.T.back();
+					Tree& t = u.T.back();//the current tree
 					t.prop_count += u.proposals.size();
-					/*if (t.height == 0)//u is a leaf
-					{*/
+					t.hmax = 1 * (t.prop_count != 0);
+					if (t.height == 0)//u is a leaf
+					{
 						if (u.T.size() == 1)//u is a terminal root. process proposals
 						{
 							if (t.prop_count < u.tokens / (28 * (B + LOGN)))
-							{//KILL(just like regular downcast, except the tokens change)
+							{//KILL
 								u.tokens -= t.prop_count * 14 * (B + LOGN);
 								for (auto& [v,vt] : u.proposals)//kill proposals
 								{
-									nodes[v].mailbox.downcast_kill.push_back( v, vt );
+									nodes[v].kill();
 								}
-								stalled_nodes.push_back(idx);
-								for (auto& [v, vt] : t.children)//downcast KILL
+								if (!u.is_proposing())
 								{
-									nodes[v].mailbox.downcast_kill.emplace_back( v, vt );
+									stalled_nodes.push_back(idx);
 								}
 							}
 							else
-							{// ACCEPT(just like regular downcast, except the tokens change)
+							{//accept
 								u.tokens += t.prop_count;
 								t.children.insert(t.children.end(), u.proposals.begin(), u.proposals.end());
-								for (auto& [v,vt] : t.children)//accept proposals and downcast ACCEPT
-								{
-									nodes[v].mailbox.downcast_accept.emplace_back(vt);
+								for (auto& [v,vt] : u.proposals)
+								{//accept proposals
+									nodes[v].accept(u.T.size() - 1);
 								}
-								t.height += 1 * (t.prop_count != 0);
+								t.height = 1 * (t.prop_count != 0);
 							}
 							u.proposals.clear();
 						}
-						else//normal upcast. hold proposals
+						else//u is terminal non-root leaf. normal upcast.
 						{
-							t.grow = 2 * (t.prop_count != 0) + 1 * (t.prop_count == 0 && u.id == u.new_parent.id);
-							nodes[t.parent.id].mail.upcast.emplace_back(t.parent.tree, t.prop_count, t.grow + 1/**/);
+							t.hmax = (t.prop_count != 0);
+							nodes[t.parent.id].mail.upcast.emplace_back(
+								t.parent.tree,
+								t.prop_count,
+								!u.is_proposing(),
+								t.hmax + (!u.is_proposing() || t.hmax != 0));
 						}
 						t.prop_count = 0;
-					/*}*/				
+					}			
 				}
 				///////////////////////////////////////////////////////////////////////////////////////////////////////////
-				for (int& idx : killed_nodes)//all inactive nodes. maybe none. tree control.
-				{
-					Node& u = nodes[idx];
-					for (Tree& t : u.T)
-					{
-						if (t.height == 0)
-							nodes[t.parent.id].mailbox.upcast.emplace_back( t.parent.tree, 0, 0 );
-					}
-				}
-				/// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 				for (round = 2; round < 2 * (step + 1) + phase * 28 * (B + LOGN); ++round)//2*(step+1) rounds for upcast + downcast
 				{
-					for (auto& [idx, u] : nodes)
+					for(auto& [idx, u] : nodes)
 					{
-						//process KILL messages
-						for (DowncastMessage& m : u.mail.downcast_kill)
+						//process DOWNCAST_KILL messages
+						for(DowncastMessage& m : u.mail.downcast_kill)
 						{
-							if (m == u.T.size() - 1)//u is terminal
+							Tree& t = u.T[m];
+							if(t.height != 0)//u is not a leaf. TODO if may becom redundant if children are removed.
 							{
-								for (auto& [v, vt] : u.proposals)//kill proposals
-								{
-									nodes[v].new_parent.id = -1;
-								}
-								u.proposals.clear();
-
-								if (u.id == u.new_parent.id && u.level < B)//u has not proposed and isn't FINISHED
-								{
-									++u.label;
-									stalled_nodes.push_back(idx);//become STALLED. need to increase u.level later
-								}
-							}
-
-							if (m == u.T.size())
-							{
-
-
-							}
-							else
-							{
-								for (auto& [v, vt] : u.T[m].children)//downcast KILL
+								for(auto& [v, vt] : t.children)//downcast KILL
 								{
 									nodes[v].mailbox.downcast_kill.push_back(vt);
 								}
 							}
-
-							
-						}
-						//process ACCEPT messages
-						for (DowncastMessage& m : u.mail.downcast_accept)
-						{
-							Tree& t = u.T[m];
-							if (m == u.T.size() - 1)//u is terminal
+							if(u.is_terminal(m))//u is terminal
 							{
-								t.children.insert(t.children.end(), u.proposals.begin(), u.proposals.end());
-								for (auto& [v, vt] : u.proposals)
+								for(auto& [v, vt] : u.proposals)//kill proposals
 								{
-									nodes[v].new_parent.tree = u.T.size() - 1;
+									nodes[v].kill();
+								}
+								u.proposals.clear();
+
+								if(!u.is_proposing())//change state to STALLED/FINISHED
+								{
+									//++u.level;//interferes with proposing on the next step
+									if(u.level < B)//u has not proposed and isn't FINISHED
+									{
+										stalled_nodes.push_back(idx);//become STALLED
+									}
+									else
+									{
+										finished_nodes.push_back(idx);//become FINISHED
+									}
+								}
+							}
+							t.height = t.hmin;
+							t.hmin = 0;
+							t.hmax = 0;
+						}
+						//process DOWNCAST_ACCEPT messages
+						for(DowncastMessage& t_idx : u.mail.downcast_accept)
+						{
+							Tree& t = u.T[t_idx];
+							if(t.height > 0)//u is not a leaf
+							{
+								for(auto& [v, vt] : t.children)//downcast ACCEPT
+								{
+									nodes[v].mailbox.downcast_accept.push_back(vt);
+								}
+							}
+							if(u.is_terminal(t_idx))
+							{
+								t.children.insert(t.children.end(), u.proposals.begin(), u.proposals.end());//add children
+								for(auto& nt : u.proposals)//accept_proposals()
+								{
+									nodes[nt.id].accept(u.T.size() - 1);
 								}
 								u.proposals.clear();
 							}
-							t.height = t.grow;
-							for (auto& [v, vt] : t.children)//downcast ACCEPT (and accept proposals if u is terminal)
-							{
-								nodes[v].mailbox.downcast_accept.push_back(vt);
-							}
+							t.height = t.hmax;
+							t.hmin = 0;
+							t.hmax = 0;
 						}
-						//process upcasts
-						for (UpcastMessage& m : u.mail.upcast)//TODO need revision
-						{//TODO enter root logic!!!!
-							Tree& t = u.T[m.tree];
-							t.prop_count += m.value;
-							//next line is equivalent to: if(m.grow > t.grow) t.grow = m.grow;
-							t.grow = m.grow * (m.grow > t.grow) + t.grow * !(m.grow > t.grow);
-							if (m.tree)
-								nodes[t.parent.id].mailbox.upcast.emplace_back(t.parent.tree, m.value, t.grow + 1);
-							else//u is root
-							{
-
-							}
-						}
-						u.mail.upcast.clear();
-						//check the tree that u is his root
-						Tree& t = u.T.front();
-						if (round == t.height + 1)
+						//process UPCAST messages
+						if(!(u.mail.upcast.empty()))
 						{
-							if (t.prop_count < u.tokens / (28 * (B + LOGN)))//kill
+							for(UpcastMessage& m : u.mail.upcast)
 							{
-								if (u.T.size() == 1)//u is terminal
-								{
-									for (auto& [v, vt] : u.proposals)//kill proposals
+								Tree& t = u.T[m.tree];
+									t.prop_count += m.p_count;
+									t.hmin = max(t.hmin, m.min);
+									t.hmax = max(t.hmin, m.min);
+									if(round == t.height + 1 && std::ranges::find(u.to_upcast, m.tree) == u.to_upcast.end())
 									{
-										nodes[v].mailbox.downcast_kill.emplace_back(v, vt);
+										u.to_upcast.push_back(m.tree);
 									}
-									u.proposals.clear();									
-									if (u.id == u.new_parent.id)
-										stalled_nodes.push_back(idx);//need to increase u.level later					
-								}
-								for (auto& [v, vt] : t.children)//downcast KILL
-								{
-									nodes[v].mailbox.downcast_kill.emplace_back(idx, vt);
-								}
-								u.tokens -= t.prop_count * 14 * (B + LOGN);
-								t.height = t.grow * (t.grow < t.height) + t.height * !(t.grow < t.height);
 							}
-							else//accept
+							u.mail.upcast.clear();
+							//upcast
+							for(int& t_idx : u.to_upcast)
 							{
-								for (auto& [v, vt] : t.children)//downcast ACCEPT (and accept proposals if u is terminal)
+								Tree t = u.T[t_idx];
+								if(t_idx == 0)//u is root
 								{
-									nodes[v].mailbox.downcast_accept.emplace_back(idx, vt);
-								}
-								u.tokens += t.prop_count;
-								if (u.T.size() == 1)//u is terminal
-								{
-									for (auto& [v, vt] : u.proposals)
-										nodes[v].mailbox.downcast_accept.push_back(0);
-									t.children.insert(t.children.end(), u.proposals.begin(), u.proposals.end());//accept children
+									if(t.prop_count < u.tokens / (28 * (B + LOGN)))
+									{//KILL(just like regular downcast, except the tokens change)
+										u.tokens -= t.prop_count * 14 * (B + LOGN);
+										if(t.height > 0)
+										{
+											for(auto& [v, vt] : t.children)//downcast KILL
+											{
+												nodes[v].mailbox.downcast_kill.push_back(vt);
+											}
+										}
+										t.height = t.hmin;
+										if(u.is_terminal(t_idx))
+										{
+											for(auto& [v, vt] : u.proposals)//kill proposals
+											{
+												nodes[v].kill();
+											}
+											if(!u.is_proposing())//u has not proposed
+											{
+												++u.level;//???now or later?
+												if(u.level < B)//u is not FINISHED
+												{
+													stalled_nodes.push_back(idx);//become STALLED
+												}
+												else//u is FINISHED
+												{
+													finished_nodes.push_back(idx);//become FINISHED
+												}
+											}
+										}
+									}
+									else
+									{// ACCEPT
+										u.tokens += t.prop_count;
+										if(t.height > 0)
+										{
+											for(auto& [v, vt] : t.children)//downcast ACCEPT
+											{
+												nodes[v].mailbox.downcast_accept.push_back(vt);
+											}
+										}
+										if(u.is_terminal(t_idx))
+										{
+											for(auto& [v, vt] : u.proposals)//accept proposals
+											{
+												nodes[v].accept(t_idx);
+											}
+											t.children.insert(t.children.end(), u.proposals.begin(), u.proposals.end());//add to children
+										}
+										t.height = t.hmax;
+										max_tree_height = max(max_tree_height, t.height);
+									}
+									t.hmin = 0;
+									t.hmax = 0;
 									u.proposals.clear();
-									t.height = t.grow;//????????????problem
 								}
+								else
+								{//upcast
+									nodes[t.parent.id].mailbox.upcast.emplace_back(t.parent.tree, t.prop_count,
+																				   t.hmin + 1 * (t.hmin != 0 || (u.is_terminal(t_idx) && !u.is_proposing())),
+																				   t.hmax + 1 * (t.hmax != 0 || (u.is_terminal(t_idx) && !u.is_proposing())));
+								}
+								t.prop_count = 0;
 							}
-							t.grow = 0;
-							t.prop_count = 0;
+							u.to_upcast.clear();
 						}
-						//send upcasts (or a downcast if u is root)
-						u.mail.upcast.clear();
-
 					}//node
 					//updates stage: (maybe at end of phase?)
-					//send ACCEPTED messages
-
-						//process ACCEPTED messages
-					for (AcceptedMessage& m : u.mail.accepted)
-					{
-						Neighbor& v = u.neighbors[m.id];
-						v.label = m.label;
-						v.level = m.level;
-						v.state = ACTIVE;
-					}
-
-					//process STALLED messages
-					for (int& m : u.mail.stalled)
-					{
-						Neighbor& v = u.neighbors[m];
-						v.level += 1;
-						v.state = STALLING;
-					}
-					//process KILLED messages
-					for (int& m : u.mail.killed)
-					{
-						u.neighbors[m].state = KILLED;
-					}
 
 				}//round
 			}//step
@@ -243,17 +255,12 @@ int Graph::networkdecomposition()
 			{
 				Node& u = nodes[idx];
 
-
 			}
+			active_nodes.insert(active_nodes.end(), stalled_nodes.begin(), stalled_nodes.end());
+			stalled_nodes.clear();
 		}//phase
 	}//color
 }
-/*TODO:
-1. eliminate non-terminal branches by upcasting from non-terminal leaves in round 1.
-each round, every dead node checks its max height.
-if it's 0, it upcasts height of 0 and deletes itself from the tree.
-*/
-void Graph::Node::make_proposals()
-{
 
-}
+
+}//namespace sz_nd

@@ -542,7 +542,7 @@ struct NodeAllocator<T, MinSize, MaxSize, true> {
 template <typename T, size_t MinSize, size_t MaxSize>
 struct NodeAllocator<T, MinSize, MaxSize, false> : public BulkPoolAllocator<T, MinSize, MaxSize> {};
 
-// dummy hash, unsed as mixer when robin_hood::hash is already used
+// dummy hash, used as mixer when robin_hood::hash is already used
 template <typename T>
 struct identity_hash {
     constexpr size_t operator()(T const& obj) const noexcept {
