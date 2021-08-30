@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <functional>
+//#include <functional>
 #include "robin_hood.h"
 
 namespace sz_nd
@@ -50,7 +50,7 @@ struct BaseNode
 	bool operator<(const BaseNode& o)
 	{
 		return label != o.label
-			&& (level < o.level || (level == o.level && (label & 1u << level) && !(o.label & 1u << o.level)));
+			&& (level < o.level || (level == o.level && ((label >> level) & 1u) && !((o.label >> o.level) & 1u)));
 	}
 };
 
@@ -64,7 +64,7 @@ class Graph
 		/*int label;
 		int level = 0;*/
 		int tokens = 1;
-		int color;
+		//int color;
 		//robin_hood::unordered_map<int, Neighbor> neighbors;
 		vector<Neighbor> neighbors[4];
 		/*vector<Neighbor> active_neighbors;
@@ -149,7 +149,6 @@ class Graph
 		}
 	}*/
 	int networkdecomposition();
-	void process_messages();
 
 };
 }//namespace sz_nd
