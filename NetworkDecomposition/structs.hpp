@@ -13,44 +13,99 @@ using std::vector;
 using tree_idx = int;
 using node_id = int;
 
-using DowncastMessage = tree_idx;//tree
 
-struct UpcastMessage
-{
-	tree_idx tree;
-	int p_count;
-	int min;
-	int max;
-};
-
-//using tree_node = std::pair<node_id, tree_idx>;
 struct tree_node
 {
-	node_id id;
-	tree_idx tree;
-};
-
-struct Tree
-{
+	int parent;
+	int next_sibling;
+	int first_child = -1;
 	int prop_count = 0;
 	int height = 0;
-	int hmin = 0;
-	int hmax = 0;
-	tree_node parent;
-	vector<tree_node> children;
 };
+
+using down_tree_node = vector<node_id>;
+
+struct queue_entry
+{
+	int label;
+	int id;
+	/*bool operator<(queue_entry& o)
+	{
+		return height < o.height;
+	}*/
+};
+struct Message
+{
+	int dst;
+	int src;
+
+	bool operator<(const Message& o) const
+	{
+		return dst < o.dst;
+	}
+};
+
+struct tree
+{
+	//using robin_hood::unordered_map;
+	//int node_count = 1;
+	int tokens = 1;
+	robin_hood::unordered_map<int, tree_node> tree_nodes;
+	vector<int> q;
+	vector<int> leaves;
+	vector<Message> proposals;
+
+	auto& operator[](auto i)
+	{
+		tree_nodes[i];
+	}
+
+	void sort_queue()
+	{
+		if(q.size() < 2) return;
+		auto first = q.rbegin(), mid = first, it = first + 1, end = q.rend();
+		int x = first->height;
+		while(it != end)
+		{
+			if(it->height < x)
+			{
+				mid = it;
+				it = std::find_if(mid + 1, end, [x](auto& a) { return a.height >= x; });
+				int d = std::min(mid - first, it - mid);
+				std::swap_ranges(first, (first + d), it - d);
+				first += it - mid;
+				mid = first;
+			}
+			else
+			{
+				if(it->height > x)
+				{
+					x = it->height;
+					first = it;
+				}
+				++it;
+			}
+		}
+	}
+};
+
+
+//using down_tree = robin_hood::unordered_map<int, down_tree_node>;
+
+
+
+
 
 struct BaseNode
 {
-	const node_id id;
+	//const node_id id;
 	int label;
 	int level;
 	//state_t state;
 
-	bool operator<(const BaseNode& o)
+	bool operator<(const BaseNode& o) const
 	{
-		return label != o.label
-			&& (level < o.level || (level == o.level && ((label >> level) & 1u) && !((o.label >> o.level) & 1u)));
+		return level < o.level || (level == o.level && ((label >> level) & 1u) && !((o.label >> o.level) & 1u));
 	}
 };
 
@@ -61,17 +116,16 @@ class Graph
 	using Neighbor = BaseNode;
 	struct Node : public BaseNode
 	{
-		/*int label;
-		int level = 0;*/
 		int tokens = 1;
 		//int color;
-		//robin_hood::unordered_map<int, Neighbor> neighbors;
+		robin_hood::unordered_map<int, Neighbor> active_neighbors;
 		vector<Neighbor> neighbors[4];
 		/*vector<Neighbor> active_neighbors;
 		vector<Neighbor> stalling_neighbors;
 		vector<Neighbor> finished_neighbors;
 		vector<Neighbor> killed_neighbors;*/
-		vector<Tree> T;
+		//vector<Tree> T;
+		robin_hood::unordered_map<int, Tree> T;
 		vector<tree_idx> to_upcast;
 		//robin_hood::unordered_flat_set<tree_idx> to_upcast;
 		tree_node new_parent;
@@ -140,6 +194,7 @@ class Graph
 
 	//vector<Node> nodes;
 	robin_hood::unordered_map<int, Node> nodes;
+	vector<vector<int>>& adj;
 	/*Graph(const vector<vector<int>>& adj)
 	{
 		nodes.reserve(adj.size());

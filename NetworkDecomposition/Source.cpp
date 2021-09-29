@@ -7,7 +7,7 @@
 
 #define MAX_N UINT32_MAX
 namespace sz_nd
-{ 
+{
 
 int Graph::networkdecomposition()
 {
@@ -29,31 +29,36 @@ int Graph::networkdecomposition()
 	vector<node_id> living_nodes;
 	vector<queue_entry> leaf_nodes;
 	living_nodes.reserve(N);
-	for (int i = 0; i < N; ++i)
+	for(int i = 0; i < N; ++i)
 		living_nodes.push_back(i);
 
 	vector<queue_entry> Q[2];
-	
+
 	for(vector<queue_entry>& q : Q)
 	{
 		q.reserve(N);
 		for(int i = 0; i < N; ++i)
 			q.emplace_back(i, i);
 	}
-	
+
 	robin_hood::unordered_map<int, tree> T;
 	//robin_hood::unordered_map<tree_idx, down_tree> Tdown;
 	vector<Message> proposals;
 	long long sum_of_rounds = 0;
-	for (int c = 0; c < LOGN; ++c) {
-		for (int phase = 0; phase < 2 * (B + LOGN); ++phase) {
-			for (int step = 0; step < 28 * (B + LOGN); ++step) {
+	for(int c = 0; c < LOGN; ++c)
+	{
+		for(int phase = 0; phase < 2 * (B + LOGN); ++phase)
+		{
+			for(int step = 0; step < 28 * (B + LOGN); ++step)
+			{
 				int round = 0;//first round, PROPOSE messages
-				for (int uid : living_nodes) {
+				for(int uid : living_nodes)
+				{
 					Node& u = nodes[uid];
 					//check for neighbors
 					auto& [vid, v] = *std::min_element(u.active_neighbors.begin(), u.active_neighbors.end(), [](const auto& l, const auto& r) { return l.second < r.second; });
-					if (v < u) {
+					if(v < u)
+					{
 						tree& tv = T[v.label];
 						tv.proposals.emplace_back(vid, uid);
 						tv[vid].prop_count += 1;
@@ -64,69 +69,69 @@ int Graph::networkdecomposition()
 				}
 				round = 1;
 				{
-				int i = round % 2;
-				Q[i] = std::move(leaf_nodes);
-				while(!Q[i].empty())
-				{
+					int i = round % 2;
+					Q[i] = std::move(leaf_nodes);
+					while(!Q[i].empty())
 					{
-					int label = -1;
-					tree* t = nullptr;
-					for(auto & [lbl, uid] : Q[i])
-					{
-						if(label != lbl)
 						{
-							label = lbl;
-							t = &T[label];
+							int label = -1;
+							tree* t = nullptr;
+							for(auto& [lbl, uid] : Q[i])
+							{
+								if(label != lbl)
+								{
+									label = lbl;
+									t = &T[label];
+								}
+								tree_node& tn = (*t)[uid];
+								tn.height += 2 * (tn.height * tn.prop_count < 0);
+								tree_node& ptn = (*t)[tn.parent];
+								ptn.prop_count += tn.prop_count;
+								ptn.height = std::max(ptn.height, tn.height + 1 * (tn.height != -1));
+								if(ptn.parent != lbl)
+								{
+									Q[1 - i].emplace_back(lbl, tn.parent);
+								}
+							}
 						}
-						tree_node& tn = (*t)[uid];
-						tn.height += 2 * (tn.height * tn.prop_count < 0);
-						tree_node& ptn = (*t)[tn.parent];
-						ptn.prop_count += tn.prop_count;
-						ptn.height = std::max(ptn.height, tn.height + 1 * (tn.height != -1));
-						if(ptn.parent != lbl)
-						{
-							Q[1 - i].emplace_back(lbl, tn.parent);
-						}
+						Q[i].clear();
+						++round;
+						i = 1 - i;
 					}
-					}
-					Q[i].clear();
-					++round;
-					i = 1 - i;
-				}
-				for(auto it = T.begin(), end = T.end(); it != end;)
-				{
-					auto& [lbl, t] = *it;
-					tree_node& r = t[lbl];
-					if(-1 == r.height)
+					for(auto it = T.begin(), end = T.end(); it != end;)
 					{
-						//do stuff
+						auto& [lbl, t] = *it;
+						tree_node& r = t[lbl];
+						if(-1 == r.height)
+						{
+							//do stuff
 
-						it = T.erase(it);
-						continue;
-					}
-					int divid = (28 * (B + LOGN));
-					int threshold = t.tokens / divid, rem = t.tokens % divid;
-					bool is_accepting = ((r.prop_count > threshold) || (r.prop_count == threshold && 0 == divid));
-					//t.node_count += r.prop_count;
-					int v = r.first_child;
-					if(v == -1)
-					{
-						leaf_nodes.emplace_back(lbl, lbl);
-					}
-					else
-					{
-						do
+							it = T.erase(it);
+							continue;
+						}
+						int divid = (28 * (B + LOGN));
+						int threshold = t.tokens / divid, rem = t.tokens % divid;
+						bool is_accepting = ((r.prop_count > threshold) || (r.prop_count == threshold && 0 == divid));
+						//t.node_count += r.prop_count;
+						int v = r.first_child;
+						if(v == -1)
 						{
-							tree_node& vtn = t[v];
-							vtn.prop_count = is_accepting;
-							Q[1 - i].emplace_back(lbl, v);
-						} while(v != -1);
+							leaf_nodes.emplace_back(lbl, lbl);
+						}
+						else
+						{
+							do
+							{
+								tree_node& vtn = t[v];
+								vtn.prop_count = is_accepting;
+								Q[1 - i].emplace_back(lbl, v);
+							} while(v != -1);
+						}
+						r.height = 0;
+						r.prop_count = 0;
+						++it;
 					}
-					r.height = 0;
-					r.prop_count = 0;
-					++it;
-				}
-				
+
 				}
 				//downcast
 				///////////////////////////////////////////////////////////////////////
@@ -150,7 +155,7 @@ int Graph::networkdecomposition()
 									t[parent_id] += sum;
 								}
 								else
-									Q[(round+1) % 2].emplace_back(lbl, parent_id, sum);
+									Q[(round + 1) % 2].emplace_back(lbl, parent_id, sum);
 								if(lbl != first->label)
 								{
 									lbl = first->label;
@@ -164,7 +169,7 @@ int Graph::networkdecomposition()
 								++sum;
 							}
 						}
-						Q[(round+1) % 2].emplace_back(lbl, t[id], sum);
+						Q[(round + 1) % 2].emplace_back(lbl, t[id], sum);
 						++round;
 					}
 				}
@@ -194,9 +199,9 @@ int Graph::networkdecomposition()
 							++sum;
 						}
 					}
-					Q[1-i].emplace_back(lbl, t[id], sum);
+					Q[1 - i].emplace_back(lbl, t[id], sum);
 				}
-				for (auto& [lbl, id, src] : proposals)
+				for(auto& [lbl, id, src] : proposals)
 				{//only PROPOSE messages
 
 
@@ -204,18 +209,18 @@ int Graph::networkdecomposition()
 					Tree& t = u.T.back();//the current tree
 					t.prop_count += u.proposals.size();
 					t.hmax = 1 * (t.prop_count != 0);
-					if (t.height == 0)//u is a leaf
+					if(t.height == 0)//u is a leaf
 					{
-						if (u.T.size() == 1)//u is a terminal root leaf. process proposals
+						if(u.T.size() == 1)//u is a terminal root leaf. process proposals
 						{
-							if (t.prop_count < u.tokens / (28 * (B + LOGN)))
+							if(t.prop_count < u.tokens / (28 * (B + LOGN)))
 							{//KILL
 								u.tokens -= t.prop_count * 14 * (B + LOGN);
-								for (auto& [v,vt] : u.proposals)//kill proposals
+								for(auto& [v, vt] : u.proposals)//kill proposals
 								{
 									nodes[v].kill();
 								}
-								if (!u.is_proposing())//u has not proposed
+								if(!u.is_proposing())//u has not proposed
 								{
 									if(u.level < B - 1)//u is not FINISHED
 									{
@@ -231,7 +236,7 @@ int Graph::networkdecomposition()
 							{//accept
 								u.tokens += t.prop_count;
 								t.children.insert(t.children.end(), u.proposals.begin(), u.proposals.end());
-								for (auto& [v,vt] : u.proposals)
+								for(auto& [v, vt] : u.proposals)
 								{//accept proposals
 									nodes[v].accept(u.T.size() - 1);
 								}
@@ -249,11 +254,11 @@ int Graph::networkdecomposition()
 								t.hmax + (!u.is_proposing() || t.hmax != 0));
 						}
 						t.prop_count = 0;
-					}			
+					}
 				}
 				///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-				for (round = 2; round < max_height + 1; ++round)//upcast
+				for(round = 2; round < max_height + 1; ++round)//upcast
 				{
 					for(auto& [idx, u] : nodes)
 					{
@@ -263,13 +268,13 @@ int Graph::networkdecomposition()
 							for(UpcastMessage& m : u.mail.upcast)
 							{
 								Tree& t = u.T[m.tree];
-									t.prop_count += m.p_count;
-									t.hmin = std::max(t.hmin, m.min);
-									t.hmax = std::max(t.hmin, m.min);
-									if(round == t.height + 1 && std::ranges::find(u.to_upcast, m.tree) == u.to_upcast.end())
-									{
-										u.to_upcast.push_back(m.tree);
-									}
+								t.prop_count += m.p_count;
+								t.hmin = std::max(t.hmin, m.min);
+								t.hmax = std::max(t.hmin, m.min);
+								if(round == t.height + 1 && std::ranges::find(u.to_upcast, m.tree) == u.to_upcast.end())
+								{
+									u.to_upcast.push_back(m.tree);
+								}
 							}
 							u.mail.upcast.clear();
 							//upcast
@@ -415,7 +420,7 @@ int Graph::networkdecomposition()
 				}//round
 
 			}//step
-			for (auto& idx : stalled_nodes)
+			for(auto& idx : stalled_nodes)
 			{
 				Node& u = nodes[idx];
 
