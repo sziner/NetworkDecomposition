@@ -2,6 +2,7 @@
 #include "utils.hpp"
 #include <algorithm>
 #include <ranges>
+#include <array>
 //#include <iterator>
 #include <numeric>
 
@@ -21,16 +22,23 @@ int Graph::networkdecomposition()
 	colors.reserve(N);
 	//int num_unfinished = N;//to end early
 	vector<vector<int>> new_adj;
-	vector<node_id> active_nodes;
-	vector<node_id> stalled_nodes;//to send update to neighbors at the end of a step
-	vector<node_id> finished_nodes;
-	vector<node_id> accepted_nodes;//to send update to neighbors at the end of a step
-	vector<node_id> killed_nodes;
-	vector<node_id> living_nodes;
+	std::array<vector<int>, 4> node_ids;
+	vector<int> active_nodes;
+	vector<int> stalled_nodes;//to send update to neighbors at the end of a step
+	vector<int> finished_nodes;
+	vector<int> accepted_nodes;//to send update to neighbors at the end of a step
+	vector<int> killed_nodes;
+	vector<int> living_nodes;
 	vector<queue_entry> leaf_nodes;
 	living_nodes.reserve(N);
 	for(int i = 0; i < N; ++i)
 		living_nodes.push_back(i);
+
+	vector<cluster> clusters;
+
+
+
+
 
 	vector<queue_entry> Q[2];
 
@@ -52,22 +60,52 @@ int Graph::networkdecomposition()
 			for(int step = 0; step < 28 * (B + LOGN); ++step)
 			{
 				int round = 0;//first round, PROPOSE messages
-				for(int uid : living_nodes)
-				{
-					Node& u = nodes[uid];
-					//check for neighbors
-					auto& [vid, v] = *std::min_element(u.active_neighbors.begin(), u.active_neighbors.end(), [](const auto& l, const auto& r) { return l.second < r.second; });
-					if(v < u)
+				auto c = {std::ref(active_nodes), std::ref(stalled_nodes)};
+				for(auto&& ids : node_ids)
+					for(auto uid : ids)
 					{
-						tree& tv = T[v.label];
-						tv.proposals.emplace_back(vid, uid);
-						tv[vid].prop_count += 1;
-						tree& tu = T[u.label];
-						//tu.node_count -= 1;
-						tu[uid].height = -1;
+						auto uit = nodes.find(uid);
+						Node& u = uit->second;
+						//check for neighbors
+						auto vit = uit;
+						for(auto it : u.active_neighbors | std::ranges::views::transform([&](auto const& x) { return nodes.find(x); }))
+						{
+							if(it->second < vit->second)
+							{
+								vit = it;
+							}
+						}
+						if(vit != uit)
+						{
+							Node& v = (*vit).second;
+							tree& tv = T[v.label];
+							tv.proposals.emplace_back(uid, v.depth + 1);
+							tree& tu = T[u.label];
+							tu.node_count -= 1;
+							//tu[uid].height = -1;
+						}
 					}
-				}
 				round = 1;
+				for(auto it = T.begin(), end = T.end(); it != end;)
+				{
+					auto& [lbl, t] = *it;
+					int div = (28 * (B + LOGN));
+					int threshold = t.tokens / div, rem = t.tokens % div;
+					int p = t.proposals.size();
+					bool is_accepting = ((p > threshold) || (p == threshold && 0 == rem));
+					t.tokens += (is_accepting) ? p : p * (-14 * (B + LOGN));
+					t.node_count += p * is_accepting;
+					t.proposals.clear();
+					if(t.node_count == 0)
+					{
+ //do stuff
+
+						it = T.erase(it);
+						continue;
+					}
+					++it;
+				}
+
 				{
 					int i = round % 2;
 					Q[i] = std::move(leaf_nodes);
