@@ -1,4 +1,4 @@
-constexpr unsigned int VAR = 90000;
+constexpr size_t VAR = 100000;
 #include "structs.hpp"
 std::ofstream f("log.txt");
 int main() {
@@ -11,7 +11,7 @@ int main() {
 	std::mt19937 engine{std::random_device{}()};
 	std::ranges::shuffle(ids, engine);
 	
-	sz_nd::Graph g(f, VAR, ids);
+	sz_nd::Graph<VAR> g(f, ids);
 	//g.print_nodes();
 	auto colors = g.decompose();
 	//std::cout << "colors:" << std::endl;
