@@ -18,13 +18,16 @@ vector<uint8_t> Graph::decompose() {
 	unsigned long long actual_sum_of_rounds = 0;
 	uint max_height = 0;
 	uint new_max_height = 0;
+	uint highest_cluster = 0;
 	unsigned long long rounds = 0;
 
 	for(uint8_t color = 0; !nodes.empty() && (color < LOGN); ++color) {
 		cout << endl << "color " << (uint) color << ":" << endl;
 		for(uint phase = 0; (active_clusters + stalling_clusters) && clusters.size() > 1 && (phase < 2 * B_LOGN); ++phase) {
 			cout << endl << "phase " << phase << ":" << endl
-				<< "clusters: " << clusters.size() << endl << "max height: " << max_height << endl;
+				<< "clusters: " << clusters.size() << endl << "max height: " << max_height << " id: " << highest_cluster << endl;
+			std::cout << endl << "phase " << phase << ":" << endl
+				<< "clusters: " << clusters.size() << endl << "max height: " << max_height << " id: " << highest_cluster << endl;
 			//print_clusters();
 			for(uint step = 0; active_clusters && (step < 28 * B_LOGN); ++step) {
 				/*cout << endl << "step " << step << ":" << std::endl
@@ -115,6 +118,7 @@ vector<uint8_t> Graph::decompose() {
 					}
 					if(new_max_height < c.depth) {
 						new_max_height = c.depth;
+						highest_cluster = lbl;
 					}
 					++it;
 				}

@@ -48,7 +48,7 @@ class Graph {
 	std::ostream& cout;
 
 public:
-	Graph(std::ostream& os, const uint n, const vector<uint>& ids, const vector<vector<uint>>& adj) : N(n), cout(os) {
+	Graph(std::ostream& os, const uint n, const vector<uint>& ids, const vector<bool>& adj) : N(n), cout(os) {
 		init(ids, adj);
 	}
 	Graph(std::ostream& os, const uint n, const vector<uint>& ids) : N(n), cout(os) {
@@ -58,7 +58,7 @@ public:
 		init(generate_ids(n), spanning_tree(n, (n * (n - 1)) / 4));
 	}
 	
-	void init(const vector<uint>& ids, const vector<vector<uint>>& adj) {
+	void init(const vector<uint>& ids, const vector<bool>& adjmat) {
 		//if(N >= MAX_N) return;
 		nodes.reserve(N);
 		depths.reserve(N);
@@ -67,8 +67,11 @@ public:
 		for(uint i = 0, s = ids.size(); i < s; ++i) {
 			auto [it, b] = nodes.emplace(ids[i], Node{ids[i], {}});
 			//std::ranges::transform(adj[i], std::back_inserter(it->second.neighbors), [&](auto x) {return ids[x]; });
-			for(uint idx : adj[i]) {
-				it->second.neighbors.push_back(ids[idx]);
+			
+			for (uint j = 0; j < N; ++j) {
+				if (adjmat[i*N+j] == true) {
+					it->second.neighbors.push_back(ids[j]);
+				}
 			}
 			depths.emplace(ids[i], 0);
 			clusters.emplace(ids[i], vector<uint>(1, ids[i]));
@@ -198,7 +201,7 @@ public:
 		cout << endl;
 	}
 	
-	vector<vector<uint>> spanning_tree(uint n, uint e) {
+	vector<bool> spanning_tree(uint n, uint e) {
 		cout << "creating adjacency matrix/list..." << std::endl;
 		vector<vector<uint>> adj(n);
 		//build a spanning tree
@@ -243,7 +246,7 @@ public:
 			}
 		}
 		//convert to list
-		for(uint i = 0; i < n; ++i) {
+		/*for (uint i = 0; i < n; ++i) {
 			adj[i].clear();
 			for(uint j = 0; j < n; ++j) {
 				if(mat[i * n + j] == true) {
@@ -251,7 +254,7 @@ public:
 				}
 			}
 			adj[i].shrink_to_fit();
-		}
+		}*/
 		
 		//we have a spanning tree. now we add random edges
 		/*std::uniform_int_distribution unidist2(0u, n - 2);
@@ -268,7 +271,7 @@ public:
 		}*/
 		//print_adjlist(adj);
 		cout << "done" << std::endl;
-		return adj;
+		return mat;
 	}
 	
 	vector<uint8_t> decompose();
