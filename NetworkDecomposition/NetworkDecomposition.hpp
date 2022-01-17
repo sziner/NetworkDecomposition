@@ -7,11 +7,10 @@
 #include <iostream>
 #include <fstream>
 #include "robin_hood.hpp"
-constexpr double P = 0.5;
-
 
 namespace sz_nd {
-enum state_t: uint8_t{ ACTIVE, STALLING, FINISHED, KILLED };
+constexpr double P = 0.5;
+enum state_t : uint8_t { ACTIVE, STALLING, FINISHED, KILLED };
 using std::vector;
 //using std::cout;
 using std::endl;
@@ -38,8 +37,13 @@ struct Node {
 	uint label;
 	vector<uint> neighbors;
 };
+struct chain_tag {};
+struct ring_tag {};
+struct clique_tag {};
+struct random_tag {};
 template <uint N>
 class Graph {
+
 	robin_hood::unordered_map<uint, Node> nodes;
 	robin_hood::unordered_map<uint, uint> depths;
 	robin_hood::unordered_map<uint, cluster> clusters;
@@ -47,16 +51,37 @@ class Graph {
 	std::ostream& cout;
 
 public:
-	Graph( std::ostream& os, const vector<uint>& ids, const vector<bool>& adjmat) : cout(os) {
+
+	Graph(std::ostream& os, const vector<uint>& ids, const vector<bool>& adjmat) : cout(os) {
 		init(ids, adjmat);
 	}
-	Graph(std::ostream& os, const vector<uint>& ids) : cout(os) {
-		init(ids, spanning_tree());
+	Graph(std::ostream& os, const vector<uint>& ids, chain_tag) : cout(os) {
+		init(ids, generate_chain());
 	}
-	Graph( std::ostream& os) : cout(os) {
-		init(generate_ids(), spanning_tree());
+	Graph(std::ostream& os, const vector<uint>& ids, ring_tag) : cout(os) {
+		init(ids, generate_ring());
 	}
-	
+
+	Graph(std::ostream& os, const vector<uint>& ids, clique_tag) : cout(os) {
+		init(ids, generate_clique());
+	}
+	Graph(std::ostream& os, const vector<uint>& ids, random_tag) : cout(os) {
+		init(ids, generate_random_edges());
+	}
+	Graph(std::ostream& os, chain_tag) : cout(os) {
+		init(generate_ids(), generate_chain());
+	}
+	Graph(std::ostream& os, ring_tag) : cout(os) {
+		init(generate_ids(), generate_ring());
+	}
+	Graph(std::ostream& os, clique_tag) : cout(os) {
+		init(generate_ids(), generate_clique());
+	}
+	Graph(std::ostream& os, random_tag) : cout(os) {
+		init(generate_ids(), generate_random_edges());
+	}
+	Graph(std::ostream& os) : Graph(os, random_tag{}) {}
+
 	void init(const vector<uint>& ids, const vector<bool>& adjmat) {
 		nodes.reserve(N);
 		depths.reserve(N);
@@ -75,100 +100,9 @@ public:
 			}
 		}
 	}
-
-	vector<bool> generate_chain() {
-		vector<bool> adjmat(N * N, false);
+	vector<bool> generate_random_edges() {
 		cout << "creating adjacency matrix/list..." << std::endl;
-		adjmat[1] = true;
-		for(uint i = 1; i < N-1; ++i) {
-			adjmat[i * N + i - 1] = true;
-			adjmat[i * N + i + 1] = true;
-		}
-		adjmat[(N * N) - 2] = true;
-		cout << "done" << std::endl;
-		//print_adjlist(adjlist);
-		return adjmat;
-	}
-	vector<bool> generate_ring() {
-		vector<bool> adjmat(N * N, false);
-		cout << "creating adjacency matrix/list..." << std::endl;
-		adjmat[1] = true;
-		adjmat[N - 1] = true;
-		for (uint i = 1; i < N - 1; ++i) {
-			adjmat[i * N + i - 1] = true;
-			adjmat[i * N + i + 1] = true;
-		}
-		adjmat[N * (N - 1)] = true;
-		adjmat[(N * N) - 2] = true;
-		cout << "done" << std::endl;
-		//print_adjlist(adjlist);
-		return adjmat;
-	}
-
-
-	vector<bool> generate_clique() {
-		std::cout << std::endl << "creating adjacency matrix/list..." << std::endl;
-		vector<bool> adjmat(N * N, true);
-		for (auto i: std::ranges::iota_view(0,N)) {//uint i = 0; i < N; ++i
-			adjmat[i * N + i] = false;
-		}
-		cout << "done" << endl;
-		//print_adjlist(adjlist);
-		return adjmat;
-	}
-	void print_adjlist(const vector<vector<uint>>& adjlist) {
-		std::cout << std::endl << "adjacency lists:" << std::endl;
-		for(auto& i : adjlist) {
-			for(auto&& j : i) {
-				std::cout << j << " ";
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-	}
-
-	vector<uint> generate_ids() {
-		std::mt19937 gen{std::random_device{}()};
-		std::uniform_int_distribution<uint> unidist(0, MAX_N - 1);
-		vector<uint> idlist;
-		idlist.reserve(N);
-		uint id = 0;
-		for (uint i = 0; i < N; ++i) {
-			do {
-				id = unidist(gen);
-			} while(std::ranges::find(idlist, id) != idlist.end());
-			idlist.push_back(id);
-		}
-		return idlist;
-	}
-
-	void print_nodes() {
-		std::cout << "nodes: (node : label -> neighbors)" << std::endl;
-		for(auto& [uid,u] : nodes) {
-			std::cout << node_map[uid] << " : " << u.label << " -> ";
-			for(auto& v : u.neighbors) {
-				std::cout << " " << node_map[v];
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-	}
-
-	void print_clusters() {
-		cout << "----------------------" << endl << "cluster\t" << "size\t" << "tokens\t" << "state" << endl <<"----------------------" << endl;
-		for(auto& [lbl,c] : clusters) {
-			cout << lbl << "\t" << c.nodes.size() << "\t" << c.tokens << "\t" << (((uint) c.state) ? "STALLED / FINISHED" : "ACTIVE") << endl;
-			/*for(uint u : c.nodes) {
-				cout << u << " ";
-			}
-			cout << endl;*/
-		}
-		cout << endl;
-	}
-	
-	vector<bool> spanning_tree() {
-		cout << "creating adjacency matrix/list..." << std::endl;
-		//build a spanning tree adjacency list
+		//create a random spanning tree
 		vector<vector<uint>> adjlist(N);
 		std::mt19937 gen{ std::random_device{}() };
 		{
@@ -194,21 +128,22 @@ public:
 				current = neighbor;
 			}
 		}
-		//build a matrix
-		vector<bool> adjmat(N*N);
+		//create a random matrix
+		vector<bool> adjmat();
+		adjmat.reserve(N * N);
 		std::bernoulli_distribution coinflip(P);
 		for (auto i : std::ranges::iota_view(0ull, N)) {
-			for(size_t j = 0; j < i; ++j) {
-				adjmat[i * N + j] = coinflip(gen);
+			for (size_t j = 0; j < i; ++j) {
+				adjmat.push_back(coinflip(gen));
 			}
-			adjmat[i * N + i] = false;
-			for(size_t j = i+1; j < N; ++j) {
-				adjmat[i * N + j] = coinflip(gen);
+			adjmat.push_back(false);
+			for (size_t j = i + 1; j < N; ++j) {
+				adjmat.push_back(coinflip(gen));
 			}
 		}
 		//combine
-		for(uint i = 0; i < N; ++i) {
-			for(uint j : adjlist[i]) {
+		for (uint i = 0; i < N; ++i) {
+			for (uint j : adjlist[i]) {
 				adjmat[i * N + j] = true;
 			}
 		}
@@ -216,7 +151,83 @@ public:
 		cout << "done" << std::endl;
 		return adjmat;
 	}
-	/// ///////////////////////////////////////////////////////////////////////
+
+	vector<bool> generate_chain() {
+		vector<bool> adjmat(N * N, false);
+		cout << "creating adjacency matrix..." << std::endl;
+		adjmat[1] = true;
+		for (uint i = 1; i < N - 1; ++i) {
+			adjmat[i * N + i - 1] = true;
+			adjmat[i * N + i + 1] = true;
+		}
+		adjmat[(N * N) - 2] = true;
+		cout << "done" << std::endl;
+		//print_adjlist(adjlist);
+		return adjmat;
+	}
+	vector<bool> generate_ring() {
+		vector<bool> adjmat(N * N, false);
+		cout << "creating adjacency matrix..." << std::endl;
+		adjmat[1] = true;
+		adjmat[N - 1] = true;
+		for (uint i = 1; i < N - 1; ++i) {
+			adjmat[i * N + i - 1] = true;
+			adjmat[i * N + i + 1] = true;
+		}
+		adjmat[N * (N - 1)] = true;
+		adjmat[(N * N) - 2] = true;
+		cout << "done" << std::endl;
+		//print_adjlist(adjlist);
+		return adjmat;
+	}
+
+	vector<bool> generate_clique() {
+		std::cout << std::endl << "creating adjacency matrix..." << std::endl;
+		vector<bool> adjmat(N * N, true);
+		for (auto i : std::ranges::iota_view(0, N)) {//uint i = 0; i < N; ++i
+			adjmat[i * N + i] = false;
+		}
+		cout << "done" << endl;
+		return adjmat;
+	}
+
+
+	vector<uint> generate_ids() {
+		vector<uint> ids;
+		ids.reserve(N);
+		for (uint i = 0; i < N; ++i) {
+			ids.push_back(i);
+		}
+		std::mt19937 engine{ std::random_device{}() };
+		std::ranges::shuffle(ids, engine);
+		return ids;
+	}
+
+	void print_nodes() {
+		std::cout << "nodes: (node : label -> neighbors)" << std::endl;
+		for (auto& [uid, u] : nodes) {
+			std::cout << node_map[uid] << " : " << u.label << " -> ";
+			for (auto& v : u.neighbors) {
+				std::cout << " " << node_map[v];
+			}
+			std::cout << std::endl;
+		}
+		std::cout << std::endl;
+	}
+
+	void print_clusters() {
+		cout << "----------------------" << endl << "cluster\t" << "size\t" << "tokens\t" << "state" << endl << "----------------------" << endl;
+		for (auto& [lbl, c] : clusters) {
+			cout << lbl << "\t" << c.nodes.size() << "\t" << c.tokens << "\t" << (((uint)c.state) ? "STALLED / FINISHED" : "ACTIVE") << endl;
+			/*for (uint u : c.nodes) {
+				cout << u << " ";
+			}
+			cout << endl;*/
+		}
+		cout << endl;
+	}
+
+	/////////algorithm implementation////////////
 	vector<uint8_t> decompose() {
 		const uint B = std::bit_width(std::ranges::max(node_map | std::views::transform([](auto x) {return x.first; })));
 		const uint LOGN = std::bit_width(N);
