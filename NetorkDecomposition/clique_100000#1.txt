@@ -1,4 +1,0 @@
-
-creating clique adjacency matrix...
-done
-clique n = 100000: bad allocation

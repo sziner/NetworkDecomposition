@@ -1,1 +1,0 @@
-ring n = 500000: bad allocation
