@@ -1,0 +1,124 @@
+creating ring adjacency matrix...
+done
+N= 10000, B= 14, LOGN= 14
+56 * (B + LOGN) ^ 2 = 43904
+*** color 0 ***
+
+phase 0:
+clusters: 10000
+max height: 0
+
+phase 1:
+clusters: 5000
+max height: 7
+
+phase 2:
+clusters: 2500
+max height: 15
+
+phase 3:
+clusters: 1250
+max height: 31
+
+phase 4:
+clusters: 625
+max height: 64
+
+phase 5:
+clusters: 312
+max height: 164
+
+phase 6:
+clusters: 156
+max height: 231
+
+phase 7:
+clusters: 78
+max height: 266
+
+phase 8:
+clusters: 39
+max height: 580
+
+phase 9:
+clusters: 24
+max height: 711
+
+phase 10:
+clusters: 17
+max height: 711
+
+phase 11:
+clusters: 15
+max height: 871
+
+phase 12:
+clusters: 15
+max height: 871
+
+phase 13:
+clusters: 15
+max height: 871
+
+*** color 1 ***
+
+phase 0:
+clusters: 15
+max height: 0
+
+phase 1:
+clusters: 15
+max height: 0
+
+phase 2:
+clusters: 15
+max height: 0
+
+phase 3:
+clusters: 15
+max height: 0
+
+phase 4:
+clusters: 15
+max height: 0
+
+phase 5:
+clusters: 15
+max height: 0
+
+phase 6:
+clusters: 15
+max height: 0
+
+phase 7:
+clusters: 15
+max height: 0
+
+phase 8:
+clusters: 15
+max height: 0
+
+phase 9:
+clusters: 15
+max height: 0
+
+phase 10:
+clusters: 15
+max height: 0
+
+phase 11:
+clusters: 15
+max height: 0
+
+phase 12:
+clusters: 15
+max height: 0
+
+phase 13:
+clusters: 15
+max height: 0
+
+colors:
+0: 9985
+1: 15
+rounds: 3752635

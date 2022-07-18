@@ -1,0 +1,140 @@
+creating random adjacency matrix/list...
+done
+N= 100000, B= 17, LOGN= 17
+56 * (B + LOGN) ^ 2 = 64736
+*** color 0 ***
+
+phase 0:
+clusters: 100000
+max height: 0
+
+phase 1:
+clusters: 50000
+max height: 1
+
+phase 2:
+clusters: 25000
+max height: 2
+
+phase 3:
+clusters: 12500
+max height: 3
+
+phase 4:
+clusters: 6250
+max height: 2
+
+phase 5:
+clusters: 3125
+max height: 2
+
+phase 6:
+clusters: 1562
+max height: 3
+
+phase 7:
+clusters: 781
+max height: 1
+
+phase 8:
+clusters: 390
+max height: 2
+
+phase 9:
+clusters: 195
+max height: 2
+
+phase 10:
+clusters: 97
+max height: 2
+
+phase 11:
+clusters: 48
+max height: 3
+
+phase 12:
+clusters: 24
+max height: 3
+
+phase 13:
+clusters: 12
+max height: 1
+
+phase 14:
+clusters: 6
+max height: 2
+
+phase 15:
+clusters: 3
+max height: 3
+
+*** color 1 ***
+
+phase 0:
+clusters: 143
+max height: 0
+
+phase 1:
+clusters: 134
+max height: 1
+
+phase 2:
+clusters: 128
+max height: 1
+
+phase 3:
+clusters: 126
+max height: 2
+
+phase 4:
+clusters: 123
+max height: 2
+
+phase 5:
+clusters: 122
+max height: 1
+
+phase 6:
+clusters: 122
+max height: 1
+
+phase 7:
+clusters: 122
+max height: 1
+
+phase 8:
+clusters: 122
+max height: 1
+
+phase 9:
+clusters: 122
+max height: 1
+
+phase 10:
+clusters: 24
+max height: 1
+
+phase 11:
+clusters: 24
+max height: 1
+
+phase 12:
+clusters: 24
+max height: 1
+
+phase 13:
+clusters: 12
+max height: 2
+
+phase 14:
+clusters: 6
+max height: 2
+
+phase 15:
+clusters: 3
+max height: 3
+
+colors:
+0: 99857
+1: 143
+rounds: 374

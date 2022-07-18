@@ -1,0 +1,80 @@
+
+creating clique adjacency matrix...
+0 1 1 1 1 1 1 1 
+1 0 1 1 1 1 1 1 
+1 1 0 1 1 1 1 1 
+1 1 1 0 1 1 1 1 
+1 1 1 1 0 1 1 1 
+1 1 1 1 1 0 1 1 
+1 1 1 1 1 1 0 1 
+1 1 1 1 1 1 1 0 
+done
+N= 8, B= 3, LOGN= 4
+56 * (B + LOGN) ^ 2 = 2744
+*** color 0 ***
+
+phase 0:
+clusters: 8
+max height: 0
+----------------------
+cluster	size	level	tokens	state
+----------------------
+0	1	0	1	ACTIVE
+4	1	0	1	ACTIVE
+3	1	0	1	ACTIVE
+1	1	0	1	ACTIVE
+5	1	0	1	ACTIVE
+6	1	0	1	ACTIVE
+7	1	0	1	ACTIVE
+2	1	0	1	ACTIVE
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+3	5	0	5	STALLED / FINISHED
+1	1	0	1	STALLED / FINISHED
+5	1	0	1	STALLED / FINISHED
+7	1	0	1	STALLED / FINISHED
+
+
+phase 1:
+clusters: 4
+max height: 1
+----------------------
+cluster	size	level	tokens	state
+----------------------
+3	5	1	5	ACTIVE
+1	1	1	1	ACTIVE
+5	1	1	1	ACTIVE
+7	1	1	1	ACTIVE
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+3	7	1	7	STALLED / FINISHED
+7	1	1	1	STALLED / FINISHED
+
+
+phase 2:
+clusters: 2
+max height: 1
+----------------------
+cluster	size	level	tokens	state
+----------------------
+3	7	2	7	ACTIVE
+7	1	2	1	ACTIVE
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+7	8	2	8	STALLED / FINISHED
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+7	8	3	8	STALLED / FINISHED
+
+
+colors:
+0: 8
+rounds: 28

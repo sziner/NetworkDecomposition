@@ -1,0 +1,46 @@
+
+creating clique adjacency matrix...
+done
+N= 1000, B= 10, LOGN= 10
+56 * (B + LOGN) ^ 2 = 22400
+*** color 0 ***
+
+phase 0:
+clusters: 1000
+max height: 0
+
+phase 1:
+clusters: 500
+max height: 1
+
+phase 2:
+clusters: 250
+max height: 2
+
+phase 3:
+clusters: 125
+max height: 2
+
+phase 4:
+clusters: 62
+max height: 2
+
+phase 5:
+clusters: 31
+max height: 2
+
+phase 6:
+clusters: 15
+max height: 2
+
+phase 7:
+clusters: 7
+max height: 2
+
+phase 8:
+clusters: 3
+max height: 1
+
+colors:
+0: 1000
+rounds: 112

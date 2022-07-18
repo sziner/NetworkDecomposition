@@ -6,15 +6,15 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
-#include "robin_hood.hpp"
+#include "robin_hood.h"
 
 namespace sz_nd {
-constexpr double P = 0.5;
+constexpr double P = 0.1;
 enum state_t : uint8_t { ACTIVE, STALLING, FINISHED, KILLED };
 using std::vector;
 //using std::cout;
 using std::endl;
-using uint = size_t;
+using uint = uint32_t;
 constexpr uint MAX_N = std::numeric_limits<uint>::max();
 
 
@@ -41,7 +41,7 @@ struct chain_tag {};
 struct ring_tag {};
 struct clique_tag {};
 struct random_tag {};
-template <uint N>
+
 class Graph {
 
 	robin_hood::unordered_map<uint, Node> nodes;
@@ -49,51 +49,58 @@ class Graph {
 	robin_hood::unordered_map<uint, cluster> clusters;
 	robin_hood::unordered_map<uint, uint> node_map;
 	std::ostream& cout;
+	const size_t N;
 
 public:
 
-	Graph(std::ostream& os, const vector<uint>& ids, const vector<bool>& adjmat) : cout(os) {
+	Graph(size_t n, const vector<uint>& ids, const vector<bool>& adjmat, std::ostream& os = std::cout) : N(n), cout(os) {
 		init(ids, adjmat);
 	}
-	Graph(std::ostream& os, const vector<uint>& ids, chain_tag) : cout(os) {
-		init(ids, generate_chain());
-	}
-	Graph(std::ostream& os, const vector<uint>& ids, ring_tag) : cout(os) {
-		init(ids, generate_ring());
+
+	Graph(size_t n, const vector<uint>& ids, std::string type, std::ostream& os = std::cout) : N(n), cout(os) {
+		if (type == "chain") {
+			init(ids, generate_chain());
+		}
+		else if (type == "ring") {
+			init(ids, generate_ring());
+		}
+		else if (type == "clique") {
+			init(ids, generate_clique());
+		}
+		else {
+			init(ids, generate_random_edges());
+		}
 	}
 
-	Graph(std::ostream& os, const vector<uint>& ids, clique_tag) : cout(os) {
-		init(ids, generate_clique());
+	Graph(size_t n, const vector<uint>& ids, std::ostream& os = std::cout) : Graph(n, ids, std::string("random"), os) {}
+	Graph(size_t n, std::string type, std::ostream& os = std::cout) : N(n), cout(os) {
+		if (type == "chain") {
+			init(generate_random_ids(), generate_chain());
+		}
+		else if (type == "ring") {
+			init(generate_random_ids(), generate_ring());
+		}
+		else if (type == "clique") {
+			init(generate_random_ids(), generate_clique());
+		}
+		else {
+			init(generate_random_ids(), generate_random_edges());
+		}
 	}
-	Graph(std::ostream& os, const vector<uint>& ids, random_tag) : cout(os) {
-		init(ids, generate_random_edges());
-	}
-	Graph(std::ostream& os, chain_tag) : cout(os) {
-		init(generate_ids(), generate_chain());
-	}
-	Graph(std::ostream& os, ring_tag) : cout(os) {
-		init(generate_ids(), generate_ring());
-	}
-	Graph(std::ostream& os, clique_tag) : cout(os) {
-		init(generate_ids(), generate_clique());
-	}
-	Graph(std::ostream& os, random_tag) : cout(os) {
-		init(generate_ids(), generate_random_edges());
-	}
-	Graph(std::ostream& os) : Graph(os, random_tag{}) {}
+	Graph(size_t n, std::ostream& os = std::cout) : Graph(n, std::string("random"), os) {}
 
 	void init(const vector<uint>& ids, const vector<bool>& adjmat) {
 		nodes.reserve(N);
 		depths.reserve(N);
 		clusters.reserve(N);
 		node_map.reserve(N);
-		for (uint i = 0; i < N; ++i) {
+		for (size_t i = 0; i < N; ++i) {
 			auto id = ids[i];
-			depths.emplace(id, 0);
+			depths.emplace(id, 0u);
 			clusters.emplace(id, vector<uint>(1, id));
-			node_map.emplace(id, i);
+			node_map.emplace(id, static_cast<uint>(i));
 			auto [it, b] = nodes.emplace(id, Node{ id, {} });
-			for (uint j = 0; j < N; ++j) {
+			for (size_t j = 0; j < N; ++j) {
 				if (adjmat[i * N + j] == true) {
 					it->second.neighbors.push_back(ids[j]);
 				}
@@ -101,7 +108,7 @@ public:
 		}
 	}
 	vector<bool> generate_random_edges() {
-		cout << "creating adjacency matrix/list..." << std::endl;
+		cout << "creating random adjacency matrix/list..." << std::endl;
 		//create a random spanning tree
 		vector<vector<uint>> adjlist(N);
 		std::mt19937 gen{ std::random_device{}() };
@@ -129,7 +136,7 @@ public:
 			}
 		}
 		//create a random matrix
-		vector<bool> adjmat();
+		vector<bool> adjmat;
 		adjmat.reserve(N * N);
 		std::bernoulli_distribution coinflip(P);
 		for (auto i : std::ranges::iota_view(0ull, N)) {
@@ -147,16 +154,16 @@ public:
 				adjmat[i * N + j] = true;
 			}
 		}
-		//print_adjlist(adj);
+		print_adjmat(adjmat);
 		cout << "done" << std::endl;
 		return adjmat;
 	}
 
 	vector<bool> generate_chain() {
 		vector<bool> adjmat(N * N, false);
-		cout << "creating adjacency matrix..." << std::endl;
+		cout << "creating chain adjacency matrix..." << std::endl;
 		adjmat[1] = true;
-		for (uint i = 1; i < N - 1; ++i) {
+		for (size_t i = 1; i < N - 1; ++i) {
 			adjmat[i * N + i - 1] = true;
 			adjmat[i * N + i + 1] = true;
 		}
@@ -167,10 +174,10 @@ public:
 	}
 	vector<bool> generate_ring() {
 		vector<bool> adjmat(N * N, false);
-		cout << "creating adjacency matrix..." << std::endl;
+		cout << "creating ring adjacency matrix..." << std::endl;
 		adjmat[1] = true;
 		adjmat[N - 1] = true;
-		for (uint i = 1; i < N - 1; ++i) {
+		for (size_t i = 1; i < N - 1; ++i) {
 			adjmat[i * N + i - 1] = true;
 			adjmat[i * N + i + 1] = true;
 		}
@@ -182,17 +189,18 @@ public:
 	}
 
 	vector<bool> generate_clique() {
-		std::cout << std::endl << "creating adjacency matrix..." << std::endl;
+		cout << std::endl << "creating clique adjacency matrix..." << std::endl;
 		vector<bool> adjmat(N * N, true);
-		for (auto i : std::ranges::iota_view(0, N)) {//uint i = 0; i < N; ++i
+		for (size_t i = 0; i < N; ++i) {
 			adjmat[i * N + i] = false;
 		}
+		print_adjmat(adjmat);
 		cout << "done" << endl;
 		return adjmat;
 	}
 
 
-	vector<uint> generate_ids() {
+	vector<uint> generate_random_ids() {
 		vector<uint> ids;
 		ids.reserve(N);
 		for (uint i = 0; i < N; ++i) {
@@ -201,6 +209,17 @@ public:
 		std::mt19937 engine{ std::random_device{}() };
 		std::ranges::shuffle(ids, engine);
 		return ids;
+	}
+
+	void print_adjmat(vector<bool> adjmat) {
+		if (N < 100) {
+			for (uint i = 0; i < N; ++i) {
+				for (uint j = 0; j < N; ++j) {
+					cout << adjmat[i * N + j] << " ";
+				}
+				cout << endl;
+			}
+		}
 	}
 
 	void print_nodes() {
@@ -216,9 +235,9 @@ public:
 	}
 
 	void print_clusters() {
-		cout << "----------------------" << endl << "cluster\t" << "size\t" << "tokens\t" << "state" << endl << "----------------------" << endl;
+		cout << "----------------------" << endl << "cluster\t" << "size\t" << "level\t" << "tokens\t" << "state" << endl << "----------------------" << endl;
 		for (auto& [lbl, c] : clusters) {
-			cout << lbl << "\t" << c.nodes.size() << "\t" << c.tokens << "\t" << (((uint)c.state) ? "STALLED / FINISHED" : "ACTIVE") << endl;
+			cout << lbl << "\t" << c.nodes.size() << "\t" << c.level << "\t" << c.tokens << "\t" << (((uint)c.state) ? "STALLED / FINISHED" : "ACTIVE") << endl;
 			/*for (uint u : c.nodes) {
 				cout << u << " ";
 			}
@@ -228,42 +247,42 @@ public:
 	}
 
 	/////////algorithm implementation////////////
+
+#define CLUSTERPRINT
 	vector<uint8_t> decompose() {
 		const uint B = std::bit_width(std::ranges::max(node_map | std::views::transform([](auto x) {return x.first; })));
 		const uint LOGN = std::bit_width(N);
 		const uint B_LOGN = B + LOGN;
+		const uint div = 28 * B_LOGN;
 		cout << "N= " << N << ", B= " << (uint)B << ", LOGN= " << (uint)LOGN << endl << "56 * (B + LOGN) ^ 2 = " << 56 * B_LOGN * B_LOGN;
-		vector<uint8_t> colors(N, uint8_t(-1));
+		vector<uint8_t> colors(N, static_cast<uint8_t>(-1));
 		vector<uint> color_count;
 		uint active_clusters = N;
 		uint stalling_clusters = 0;
-		unsigned long long messages = 0;
-		unsigned long long calculated_sum_of_rounds = 0;
-		unsigned long long actual_sum_of_rounds = 0;
-		uint max_height = 0;
-		uint new_max_height = 0;
+		size_t max_height = 0;
+		size_t new_max_height = 0;
 		unsigned long long rounds = 0;
 
 		for (uint8_t color = 0; !nodes.empty() && (color < LOGN); ++color) {
-			cout << endl << "color " << (uint)color << ":" << endl;
-			for (uint phase = 0; (active_clusters + stalling_clusters) && clusters.size() > 1 && (phase < 2 * B_LOGN); ++phase) {
+			cout << endl << "*** color " << (uint)color << " ***" << endl;
+			max_height = 0;
+			for (uint phase = 0; (active_clusters || stalling_clusters) && clusters.size() > 1 && (phase < 2 * B_LOGN); ++phase) {
 				cout << endl << "phase " << phase << ":" << endl
 					<< "clusters: " << clusters.size() << endl << "max height: " << max_height << endl;
-				//print_clusters();
+#ifdef CLUSTERPRINT
+				print_clusters();
+#endif // CLUSTERPRINT
 				for (uint step = 0; active_clusters && (step < 28 * B_LOGN); ++step) {
-					/*cout << endl << "step " << step << ":" << std::endl
-						<< "clusters: " << clusters.size() << std::endl;
-					print_clusters();*/
-					max_height = 0;
+					new_max_height = 0;
 					for (auto ucit = clusters.begin(); ucit != clusters.end(); ++ucit) {
 						std::erase_if(ucit->second.nodes, [&](uint uid) {
 							auto uit = nodes.find(uid);
 							auto vit = uit;
-							auto vcit = ucit;
+							decltype(ucit) vcit = ucit;
 							//choose a neighbor to propose to
 							for (auto tmpid : uit->second.neighbors) {
 								auto tmpit = nodes.find(tmpid);
-								if ((tmpit->second.label != MAX_N) && (tmpit->second.label != vit->second.label)) {
+								if ((tmpit->second.label != MAX_N) && (tmpit->second.label != vit->second.label) && (tmpit->second.label != uit->second.label)) {
 									auto tmpcit = clusters.find(tmpit->second.label);
 									if ((tmpcit->second.state == ACTIVE)
 										&& (tmpcit->second.level < vcit->second.level
@@ -304,7 +323,6 @@ public:
 						}
 						else {
 							const uint p = c.proposals.size();
-							const uint div = 28 * B_LOGN;
 							const uint threshold = c.tokens / div;
 							const uint rem = c.tokens % div;
 							if (p > threshold || (p == threshold && 0 == rem)) {//accept
@@ -322,7 +340,6 @@ public:
 										c.depth = dpth;
 									}
 								}
-
 							}
 							else {//kill
 								for (auto& [cld, dpth] : c.proposals) {
@@ -347,9 +364,10 @@ public:
 					}
 					rounds += (max_height + 1) * 2 + 1;//proposals + upcast + downcast + kill/accept + updates
 					max_height = new_max_height;
-					new_max_height = 0;
 				}//step
-				//print_clusters();
+#ifdef CLUSTERPRINT
+				print_clusters();
+#endif // CLUSTERPRINT
 				for (auto& [lbl, c] : clusters) {
 					if (c.state == STALLING) {
 						--stalling_clusters;
@@ -363,7 +381,9 @@ public:
 					}
 				}
 			}//phase
-			//print_clusters();
+#ifdef CLUSTERPRINT
+			print_clusters();
+#endif // CLUSTERPRINT
 			for (auto& [uid, u] : nodes | std::views::filter([](auto& x) {return x.second.label == MAX_N; })) {
 				std::erase_if(u.neighbors, [&](auto x) {return nodes[x].label != MAX_N; });
 			}
@@ -395,6 +415,6 @@ public:
 		cout << "rounds: " << rounds << endl;
 		return colors;
 	}
-
 };
+#undef CLUSTERPRINT
 }//namespace sz_nd

@@ -1,0 +1,200 @@
+
+creating clique adjacency matrix...
+0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 
+done
+N= 32, B= 5, LOGN= 6
+56 * (B + LOGN) ^ 2 = 6776
+*** color 0 ***
+
+phase 0:
+clusters: 32
+max height: 0
+----------------------
+cluster	size	level	tokens	state
+----------------------
+0	1	0	1	ACTIVE
+12	1	0	1	ACTIVE
+4	1	0	1	ACTIVE
+31	1	0	1	ACTIVE
+3	1	0	1	ACTIVE
+13	1	0	1	ACTIVE
+16	1	0	1	ACTIVE
+7	1	0	1	ACTIVE
+9	1	0	1	ACTIVE
+15	1	0	1	ACTIVE
+21	1	0	1	ACTIVE
+19	1	0	1	ACTIVE
+24	1	0	1	ACTIVE
+25	1	0	1	ACTIVE
+11	1	0	1	ACTIVE
+27	1	0	1	ACTIVE
+20	1	0	1	ACTIVE
+10	1	0	1	ACTIVE
+17	1	0	1	ACTIVE
+30	1	0	1	ACTIVE
+1	1	0	1	ACTIVE
+28	1	0	1	ACTIVE
+2	1	0	1	ACTIVE
+18	1	0	1	ACTIVE
+29	1	0	1	ACTIVE
+26	1	0	1	ACTIVE
+5	1	0	1	ACTIVE
+6	1	0	1	ACTIVE
+8	1	0	1	ACTIVE
+14	1	0	1	ACTIVE
+22	1	0	1	ACTIVE
+23	1	0	1	ACTIVE
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	1	0	1	STALLED / FINISHED
+3	1	0	1	STALLED / FINISHED
+13	1	0	1	STALLED / FINISHED
+7	1	0	1	STALLED / FINISHED
+9	17	0	17	STALLED / FINISHED
+15	1	0	1	STALLED / FINISHED
+21	1	0	1	STALLED / FINISHED
+19	1	0	1	STALLED / FINISHED
+25	1	0	1	STALLED / FINISHED
+11	1	0	1	STALLED / FINISHED
+27	1	0	1	STALLED / FINISHED
+17	1	0	1	STALLED / FINISHED
+1	1	0	1	STALLED / FINISHED
+29	1	0	1	STALLED / FINISHED
+5	1	0	1	STALLED / FINISHED
+23	1	0	1	STALLED / FINISHED
+
+
+phase 1:
+clusters: 16
+max height: 1
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	1	1	1	ACTIVE
+3	1	1	1	ACTIVE
+13	1	1	1	ACTIVE
+7	1	1	1	ACTIVE
+9	17	1	17	ACTIVE
+15	1	1	1	ACTIVE
+21	1	1	1	ACTIVE
+19	1	1	1	ACTIVE
+25	1	1	1	ACTIVE
+11	1	1	1	ACTIVE
+27	1	1	1	ACTIVE
+17	1	1	1	ACTIVE
+1	1	1	1	ACTIVE
+29	1	1	1	ACTIVE
+5	1	1	1	ACTIVE
+23	1	1	1	ACTIVE
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	1	1	1	STALLED / FINISHED
+3	1	1	1	STALLED / FINISHED
+7	1	1	1	STALLED / FINISHED
+15	1	1	1	STALLED / FINISHED
+19	1	1	1	STALLED / FINISHED
+11	25	1	25	STALLED / FINISHED
+27	1	1	1	STALLED / FINISHED
+23	1	1	1	STALLED / FINISHED
+
+
+phase 2:
+clusters: 8
+max height: 1
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	1	2	1	ACTIVE
+3	1	2	1	ACTIVE
+7	1	2	1	ACTIVE
+15	1	2	1	ACTIVE
+19	1	2	1	ACTIVE
+11	25	2	25	ACTIVE
+27	1	2	1	ACTIVE
+23	1	2	1	ACTIVE
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	1	2	1	STALLED / FINISHED
+7	1	2	1	STALLED / FINISHED
+15	29	2	29	STALLED / FINISHED
+23	1	2	1	STALLED / FINISHED
+
+
+phase 3:
+clusters: 4
+max height: 1
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	1	3	1	ACTIVE
+7	1	3	1	ACTIVE
+15	29	3	29	ACTIVE
+23	1	3	1	ACTIVE
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	1	3	1	STALLED / FINISHED
+15	31	3	31	STALLED / FINISHED
+
+
+phase 4:
+clusters: 2
+max height: 2
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	1	4	1	ACTIVE
+15	31	4	31	ACTIVE
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	32	4	32	STALLED / FINISHED
+
+----------------------
+cluster	size	level	tokens	state
+----------------------
+31	32	5	32	STALLED / FINISHED
+
+
+colors:
+0: 32
+rounds: 52

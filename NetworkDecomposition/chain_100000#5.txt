@@ -1,0 +1,148 @@
+creating chain adjacency matrix...
+done
+N= 100000, B= 17, LOGN= 17
+56 * (B + LOGN) ^ 2 = 64736
+*** color 0 ***
+
+phase 0:
+clusters: 100000
+max height: 0
+
+phase 1:
+clusters: 50000
+max height: 9
+
+phase 2:
+clusters: 25000
+max height: 19
+
+phase 3:
+clusters: 12500
+max height: 35
+
+phase 4:
+clusters: 6250
+max height: 69
+
+phase 5:
+clusters: 3125
+max height: 143
+
+phase 6:
+clusters: 1562
+max height: 276
+
+phase 7:
+clusters: 781
+max height: 530
+
+phase 8:
+clusters: 392
+max height: 932
+
+phase 9:
+clusters: 221
+max height: 1075
+
+phase 10:
+clusters: 152
+max height: 1075
+
+phase 11:
+clusters: 139
+max height: 1198
+
+phase 12:
+clusters: 134
+max height: 1198
+
+phase 13:
+clusters: 133
+max height: 1198
+
+phase 14:
+clusters: 132
+max height: 1198
+
+phase 15:
+clusters: 131
+max height: 1198
+
+phase 16:
+clusters: 131
+max height: 1198
+
+*** color 1 ***
+
+phase 0:
+clusters: 130
+max height: 0
+
+phase 1:
+clusters: 130
+max height: 0
+
+phase 2:
+clusters: 130
+max height: 0
+
+phase 3:
+clusters: 130
+max height: 0
+
+phase 4:
+clusters: 130
+max height: 0
+
+phase 5:
+clusters: 130
+max height: 0
+
+phase 6:
+clusters: 130
+max height: 0
+
+phase 7:
+clusters: 130
+max height: 0
+
+phase 8:
+clusters: 130
+max height: 0
+
+phase 9:
+clusters: 130
+max height: 0
+
+phase 10:
+clusters: 130
+max height: 0
+
+phase 11:
+clusters: 130
+max height: 0
+
+phase 12:
+clusters: 130
+max height: 0
+
+phase 13:
+clusters: 130
+max height: 0
+
+phase 14:
+clusters: 130
+max height: 0
+
+phase 15:
+clusters: 130
+max height: 0
+
+phase 16:
+clusters: 130
+max height: 0
+
+colors:
+0: 99870
+1: 130
+rounds: 13001499

@@ -1,0 +1,124 @@
+creating chain adjacency matrix...
+done
+N= 10000, B= 14, LOGN= 14
+56 * (B + LOGN) ^ 2 = 43904
+*** color 0 ***
+
+phase 0:
+clusters: 10000
+max height: 0
+
+phase 1:
+clusters: 5000
+max height: 6
+
+phase 2:
+clusters: 2500
+max height: 13
+
+phase 3:
+clusters: 1250
+max height: 29
+
+phase 4:
+clusters: 625
+max height: 66
+
+phase 5:
+clusters: 312
+max height: 102
+
+phase 6:
+clusters: 156
+max height: 150
+
+phase 7:
+clusters: 78
+max height: 293
+
+phase 8:
+clusters: 39
+max height: 457
+
+phase 9:
+clusters: 26
+max height: 765
+
+phase 10:
+clusters: 19
+max height: 777
+
+phase 11:
+clusters: 17
+max height: 777
+
+phase 12:
+clusters: 17
+max height: 777
+
+phase 13:
+clusters: 16
+max height: 777
+
+*** color 1 ***
+
+phase 0:
+clusters: 15
+max height: 0
+
+phase 1:
+clusters: 15
+max height: 0
+
+phase 2:
+clusters: 15
+max height: 0
+
+phase 3:
+clusters: 15
+max height: 0
+
+phase 4:
+clusters: 15
+max height: 0
+
+phase 5:
+clusters: 15
+max height: 0
+
+phase 6:
+clusters: 15
+max height: 0
+
+phase 7:
+clusters: 15
+max height: 0
+
+phase 8:
+clusters: 15
+max height: 0
+
+phase 9:
+clusters: 15
+max height: 0
+
+phase 10:
+clusters: 15
+max height: 0
+
+phase 11:
+clusters: 15
+max height: 0
+
+phase 12:
+clusters: 15
+max height: 0
+
+phase 13:
+clusters: 15
+max height: 0
+
+colors:
+0: 9985
+1: 15
+rounds: 3475782

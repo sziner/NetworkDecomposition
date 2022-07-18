@@ -1,0 +1,72 @@
+creating random adjacency matrix/list...
+done
+N= 10000, B= 14, LOGN= 14
+56 * (B + LOGN) ^ 2 = 43904
+*** color 0 ***
+
+phase 0:
+clusters: 10000
+max height: 0
+
+phase 1:
+clusters: 5000
+max height: 1
+
+phase 2:
+clusters: 2500
+max height: 2
+
+phase 3:
+clusters: 1250
+max height: 2
+
+phase 4:
+clusters: 625
+max height: 2
+
+phase 5:
+clusters: 312
+max height: 1
+
+phase 6:
+clusters: 156
+max height: 2
+
+phase 7:
+clusters: 78
+max height: 2
+
+phase 8:
+clusters: 39
+max height: 2
+
+phase 9:
+clusters: 19
+max height: 3
+
+phase 10:
+clusters: 9
+max height: 2
+
+phase 11:
+clusters: 4
+max height: 3
+
+phase 12:
+clusters: 2
+max height: 3
+
+*** color 1 ***
+
+phase 0:
+clusters: 4
+max height: 0
+
+phase 1:
+clusters: 3
+max height: 1
+
+colors:
+0: 9996
+1: 4
+rounds: 213
